@@ -32,7 +32,7 @@ function getOpenRouterClient() {
  */
 async function callAI(systemPrompt, userPrompt, options = {}) {
   const client = getOpenRouterClient();
-  const model = process.env.OPENROUTER_MODEL || "deepseek/deepseek-chat-v3-0324:free";
+  const model = process.env.OPENROUTER_MODEL || "qwen/qwen-turbo"; // Fallback to a stable model if env is missing
 
   const { maxTokens = 2048, temperature = 0.3 } = options;
 

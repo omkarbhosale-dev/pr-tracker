@@ -66,39 +66,47 @@ async function getPullRequestCommits(owner, repo, pullNumber) {
 
 
 async function upsertPRComment(owner, repo, pullNumber, body) {
-  const octokit = getOctokit();
-  const BOT_HEADER = "<!-- github-pr-assistant -->";
+  try {
+    const octokit = getOctokit();
+    const BOT_HEADER = "<!-- github-pr-assistant -->";
 
- 
-  const { data: existingComments } = await octokit.issues.listComments({
-    owner,
-    repo,
-    issue_number: pullNumber,
-    per_page: 100,
-  });
-
-  const existingComment = existingComments.find((c) =>
-    c.body?.includes(BOT_HEADER)
-  );
-
-  const fullBody = `${BOT_HEADER}\n${body}`;
-
-  if (existingComment) {
-    await octokit.issues.updateComment({
-      owner,
-      repo,
-      comment_id: existingComment.id,
-      body: fullBody,
-    });
-    console.log(`✏️  Updated existing bot comment #${existingComment.id}`);
-  } else {
-    await octokit.issues.createComment({
+    // ... (rest of function)
+    const { data: existingComments } = await octokit.issues.listComments({
       owner,
       repo,
       issue_number: pullNumber,
-      body: fullBody,
+      per_page: 100,
     });
-    console.log("💬 Created new bot comment on PR");
+
+    const existingComment = existingComments.find((c) =>
+      c.body?.includes(BOT_HEADER)
+    );
+
+    const fullBody = `${BOT_HEADER}\n${body}`;
+
+    if (existingComment) {
+      await octokit.issues.updateComment({
+        owner,
+        repo,
+        comment_id: existingComment.id,
+        body: fullBody,
+      });
+      console.log(`✏️  Updated existing bot comment #${existingComment.id}`);
+    } else {
+      await octokit.issues.createComment({
+        owner,
+        repo,
+        issue_number: pullNumber,
+        body: fullBody,
+      });
+      console.log("💬 Created new bot comment on PR");
+    }
+  } catch (error) {
+    if (error.status === 403 || error.status === 401) {
+      console.error("❌ GitHub Permission Error: The token provided lacks permission to comment on issues/PRs.");
+      console.error("   Please ensure your GitHub Token has 'repo' scope (Classic) or 'Pull Requests: Read & Write' (Fine-grained).");
+    }
+    throw error;
   }
 }
 

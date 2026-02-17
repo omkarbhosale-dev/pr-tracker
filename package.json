@@ -1,0 +1,23 @@
+{
+  "name": "github-pr-assistant",
+  "version": "1.0.0",
+  "description": "AI-powered GitHub PR Assistant that auto-summarizes pull requests, flags production risks, and adds smart commit notes using OpenRouter AI.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "node src/test-webhook.js"
+  },
+  "keywords": ["github", "pr", "assistant", "ai", "openrouter", "webhook"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/rest": "^20.1.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "openai": "^4.52.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

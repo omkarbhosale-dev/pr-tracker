@@ -15,25 +15,34 @@ function getOctokit() {
 
 
 async function getPullRequestFiles(owner, repo, pullNumber) {
-  const octokit = getOctokit();
-  const maxFiles = parseInt(process.env.MAX_FILES_TO_ANALYZE || "15");
-  const maxDiffChars = parseInt(process.env.MAX_DIFF_CHARS_PER_FILE || "3000");
+  try {
+    const octokit = getOctokit();
+    const maxFiles = parseInt(process.env.MAX_FILES_TO_ANALYZE || "15");
+    const maxDiffChars = parseInt(process.env.MAX_DIFF_CHARS_PER_FILE || "3000");
 
-  const { data: files } = await octokit.pulls.listFiles({
-    owner,
-    repo,
-    pull_number: pullNumber,
-    per_page: 100,
-  });
+    console.log(`Debug: fetching files for ${owner}/${repo} #${pullNumber} (max ${maxFiles})`);
+    
+    const { data: files } = await octokit.pulls.listFiles({
+      owner,
+      repo,
+      pull_number: pullNumber,
+      per_page: 100,
+    });
+    
+    console.log(`Debug: listFiles returned ${files ? files.length : 'null'} files`);
 
-  return files.slice(0, maxFiles).map((f) => ({
-    filename: f.filename,
-    status: f.status,
-    additions: f.additions,
-    deletions: f.deletions,
-    changes: f.changes,
-    patch: f.patch ? f.patch.slice(0, maxDiffChars) : "(binary or no diff available)",
-  }));
+    return files.slice(0, maxFiles).map((f) => ({
+      filename: f.filename,
+      status: f.status,
+      additions: f.additions,
+      deletions: f.deletions,
+      changes: f.changes,
+      patch: f.patch ? f.patch.slice(0, maxDiffChars) : "(binary or no diff available)",
+    }));
+  } catch (error) {
+    console.error("❌ Error in getPullRequestFiles:", error);
+    throw error;
+  }
 }
 
 
